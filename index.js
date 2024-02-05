@@ -2,30 +2,39 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import axios from 'axios'; // Add this line
-import dotenv from 'dotenv'; // And add this line
+import axios from 'axios';
+import dotenv from 'dotenv';
 
-// Get directory of current module file in ES6
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-dotenv.config(); // Add this line to load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../ReactAppDir/cleaner/build')));
 
-app.get('/', (_, res) => {
-    res.render('pages/index');
-});
-
-// Replace your original '/ask' endpoint with this
+// Handle your routes here, put all API endpoints under '/api/'
 app.post('/ask', async (req, res) => {
     const { message } = req.body;
+
     if (!message) {
         return res.status(400).send('Bad Request: message parameter is required');
+    }
+
+    // rest of your '/ask' endpoint code
+});
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../ReactAppDir/cleaner/build', 'index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is up and running on port ${PORT}`);
+});
