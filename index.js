@@ -1,38 +1,31 @@
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
-const openai = require('openai');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import axios from 'axios'; // Add this line
+import dotenv from 'dotenv'; // And add this line
 
-const PORT = process.env.PORT || 5001;
+// Get directory of current module file in ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-openai.apiKey = process.env.OPENAI_API_KEY;
-
+dotenv.config(); // Add this line to load environment variables
 
 const app = express();
+const PORT = process.env.PORT || 5001;
 
-// Use body-parser middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => res.render('pages/index'));
-
-app.post('/ask', async (req, res) => {
-    const userQuestion = req.body.message; // User's question
-    try {
-        const gptResponse = await openai.Completion.create({
-            engine: "davinci-codex",
-            prompt: userQuestion,
-            maxTokens: 60
-        });
-        res.send(gptResponse.data.choices[0].text.strip());
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+app.get('/', (_, res) => {
+    res.render('pages/index');
 });
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
-
-import 'bootstrap/dist/css/bootstrap.min.css';
+// Replace your original '/ask' endpoint with this
+app.post('/ask', async (req, res) => {
+    const { message } = req.body;
+    if (!message) {
+        return res.status(400).send('Bad Request: message parameter is required');

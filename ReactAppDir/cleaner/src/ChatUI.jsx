@@ -18,7 +18,37 @@ const ChatUI = () => {
 
         const newMessages = [...messages, chatBubble(input, "You")];
         setMessages(newMessages);
-        setInput('');
 
         try {
             const response = await axios.post('/ask', { message: input });
+            setInput('');
+            setMessages([...newMessages, chatBubble(response.data, "AI Assistant")]);
+        } catch (error) {
+            console.error(`Error in sending message: ${error}`);
+        }
+    };
+
+    return (
+        <div>
+            <Form onSubmit={handleSubmit}>
+                <InputGroup className="mb-3">
+                    <Form.Control
+                        placeholder="Type your question..."
+                        aria-label="Type your question"
+                        aria-describedby="basic-addon2"
+                        value={input}
+                        onChange={event => setInput(event.target.value)}
+                    />
+                    <InputGroup.Append>
+                        <Button variant="outline-secondary" type="submit">Send</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </Form>
+            <ListGroup>
+                {messages}
+            </ListGroup>
+        </div>
+    );
+}
+
+export default ChatUI;
