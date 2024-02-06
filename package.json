@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "heroku-postbuild": "cd ReactAppDir/cleaner && npm install && npm run build",
+    "heroku-postbuild": "npm install --prefix ../cleaner && npm run build --prefix ../cleaner && mv ../cleaner/build ./cleaner",
     "test": "node test.js"
   },
   "dependencies": {
